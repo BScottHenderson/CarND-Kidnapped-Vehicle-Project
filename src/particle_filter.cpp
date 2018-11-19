@@ -17,6 +17,8 @@
 
 #include "particle_filter.h"
 
+#define   M   1000
+
 using namespace std;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
@@ -25,6 +27,44 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
   // Add random Gaussian noise to each particle.
   // NOTE: Consult particle_filter.h for more information about this method (and others in this file).
 
+  if (is_initialized)
+    return;
+
+  // Set the number of particles
+  num_particles = M;
+  particles = std::vector<Particle>(num_particles);
+  weights   = std::vector<double>(num_particles);
+
+  default_random_engine gen;
+
+  // Create normal distributions for x, y, theta.
+  normal_distribution<double> dist_x(x, std[0]);
+  normal_distribution<double> dist_y(y, std[1]);
+  normal_distribution<double> dist_theta(theta, std[2]);
+
+  // For each particle ...
+  int id = 0;
+  for (std::vector<Particle>::iterator p = particles.begin(); p != particles.end(); ++p) {
+    // Just assign a sequential, 0-based id value.
+    p->id = id++;
+
+    // Set the position (x, y) and heading using normal distributions based on the
+    // given initial position and heading and standard deviation values.
+    p->x = dist_x(gen);
+    p->y = dist_y(gen);
+    p->theta = dist_theta(gen);
+
+    // Make sure other values are initialized.
+    p->weight = 0.0;
+    //p->associations.empty();
+    //p->sense_x.empty();
+    //p->sense_y.empty();
+  }
+
+  // Set all weights to 1.0
+  std::fill(weights.begin(), weights.end(), 1.0);
+
+  is_initialized = true;
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {

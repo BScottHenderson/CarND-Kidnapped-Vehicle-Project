@@ -22,7 +22,7 @@
 
 #include "particle_filter.h"
 
-#define M 10
+#define M 1000
 
 static std::random_device         rd;
 static std::default_random_engine gen(rd());

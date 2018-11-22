@@ -61,6 +61,11 @@ int main()
         if (event == "telemetry") {
           // j[1] is the data JSON object
 
+#if __DEBUG
+          cout << "time step: " << ++(pf.time_step) << endl;
+          pf.write_data = (pf.time_step == 237);
+#endif
+
           if (!pf.initialized()) {
             // Sense noisy position data from the simulator
             double sense_x = std::stod(j[1]["sense_x"].get<std::string>());
@@ -105,6 +110,12 @@ int main()
           // Update the weights and resample
           pf.updateWeights(sensor_range, sigma_landmark, noisy_observations, map);
           pf.resample();
+
+#if __DEBUG
+          for (auto i = pf.times.begin(); i != pf.times.end(); ++i) {
+            cout << ">> " << i->first << " : " << i->second << endl;
+          }
+#endif
 
           // Calculate and output the average weighted error of the particle filter over all time steps so far.
           vector<Particle> particles = pf.particles;

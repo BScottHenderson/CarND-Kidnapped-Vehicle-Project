@@ -55,8 +55,12 @@ struct LandmarkObs {
  * @param (x2,y2) x and y coordinates of second point
  * @output Euclidean distance between two 2D points
  */
+inline double dist(double dx, double dy) {
+  return sqrt(dx * dx + dy * dy);
+}
 inline double dist(double x1, double y1, double x2, double y2) {
-  return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+  //return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+  return dist(x2 - x1, y2 - y1);
 }
 
 inline double * getError(double gt_x, double gt_y, double gt_theta, double pf_x, double pf_y, double pf_theta) {

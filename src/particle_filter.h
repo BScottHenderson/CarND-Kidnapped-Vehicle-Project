@@ -10,9 +10,11 @@
 #define PARTICLE_FILTER_H_
 
 #include "helper_functions.h"
+#include "map.h"
+
+#define __DEBUG 0
 
 struct Particle {
-
   int id;
   double x;
   double y;
@@ -35,13 +37,24 @@ class ParticleFilter {
   std::vector<double> weights;
   
 public:
-  
+
+#if __DEBUG
+  // Debugging / performance instrumentation:
+  int time_step; // Current time step.
+  bool write_data; // Write data to stdout?
+  std::map<std::string, time_t> times; // Elapsed times for various ops.
+#endif
+
   // Set of current particles
   std::vector<Particle> particles;
 
   // Constructor
   // @param num_particles Number of particles
+#if __DEBUG
+  ParticleFilter() : num_particles(0), is_initialized(false), time_step(0), write_data(false) {}
+#else
   ParticleFilter() : num_particles(0), is_initialized(false) {}
+#endif
 
   // Destructor
   ~ParticleFilter() {}
@@ -67,7 +80,7 @@ public:
    * @param yaw_rate Yaw rate of car from t to t+1 [rad/s]
    */
   void prediction(double delta_t, double std_pos[], double velocity, double yaw_rate);
-  
+
   /**
    * dataAssociation Finds which observations correspond to which landmarks (likely by using
    *   a nearest-neighbors data association).
@@ -75,7 +88,7 @@ public:
    * @param observations Vector of landmark observations
    */
   void dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations);
-  
+
   /**
    * updateWeights Updates the weights for each particle based on the likelihood of the 
    *   observed measurements. 
@@ -86,7 +99,7 @@ public:
    */
   void updateWeights(double sensor_range, double std_landmark[], const std::vector<LandmarkObs> &observations,
       const Map &map_landmarks);
-  
+
   /**
    * resample Resamples from the updated set of particles to form
    *   the new set of particles.

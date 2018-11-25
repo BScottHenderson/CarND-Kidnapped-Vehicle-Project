@@ -38,7 +38,9 @@ int main()
 
   // Read map data
   Map map;
-  if (!read_map_data("../data/map_data.txt", map)) {
+  //std::string map_file_name = "../../data/map_data.txt";
+  std::string map_file_name = "../data/map_data.txt";
+  if (!read_map_data(map_file_name, map)) {
     cout << "Error: Could not open map file" << endl;
     return -1;
   }
@@ -61,7 +63,7 @@ int main()
         if (event == "telemetry") {
           // j[1] is the data JSON object
 
-#if __DEBUG
+#ifdef _DEBUG
           cout << "time step: " << ++(pf.time_step) << endl;
           pf.write_data = (pf.time_step == 237);
 #endif
@@ -111,10 +113,8 @@ int main()
           pf.updateWeights(sensor_range, sigma_landmark, noisy_observations, map);
           pf.resample();
 
-#if __DEBUG
-          for (auto i = pf.times.begin(); i != pf.times.end(); ++i) {
-            cout << ">> " << i->first << " : " << i->second << endl;
-          }
+#ifdef _DEBUG
+          cout << pf.times.to_string();
 #endif
 
           // Calculate and output the average weighted error of the particle filter over all time steps so far.

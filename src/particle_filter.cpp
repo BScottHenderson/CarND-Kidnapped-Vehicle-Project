@@ -18,7 +18,6 @@
 #include <functional>
 #include <string>
 #include <map>
-#include <time.h>
 
 #include "particle_filter.h"
 
@@ -148,11 +147,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   //   3.33
   //   http://planning.cs.uiuc.edu/node99.html
 
-#if __DEBUG
-  time_t  start = clock();
-  time_t  local_start;
-  time_t  local_elapsed;
-  time_t  local_time = 0;
+#ifdef _DEBUG
+  Timer timer;
+  timer.start();
 #endif
 
   //
@@ -165,8 +162,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     // Generate a list of map landmarks that are within sensor range of the vehicle/particle.
     //
 
-#if __DEBUG
-    local_start = clock();
+#ifdef _DEBUG
+    timer.start();
 #endif
     // Extract a subset of map landmarks to make the nearest neighbor calculation faster.
     // See the dataAssociation() method.
@@ -186,18 +183,16 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         predicted.push_back({id++, l->x_f, l->y_f});
       }
     }
-#if __DEBUG
-    local_elapsed = clock() - local_start;
-    local_time += local_elapsed;
-    times["1-sensor_range"] += local_elapsed;
+#ifdef _DEBUG
+    times["1-sensor_range"] += timer.stop();
 #endif
 
     //
     // Transform observations from vehicle/particle coordinates to map coordinates.
     //
 
-#if __DEBUG
-    local_start = clock();
+#ifdef _DEBUG
+    timer.start();
 #endif
     // Cache expensive calculations.
     double  cos_theta = cos(p->theta);
@@ -209,26 +204,22 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       double map_y = p->y + (sin_theta * observations[o].x) + (cos_theta * observations[o].y);
       transformed_observations[o] = {0, map_x, map_y};
     }
-#if __DEBUG
-    local_elapsed = clock() - local_start;
-    local_time += local_elapsed;
-    times["2-transform"] += local_elapsed;
+#ifdef _DEBUG
+    times["2-transform"] += timer.stop();
 #endif
 
     //
     // Nearest Neighbor
     //
 
-#if __DEBUG
-    local_start = clock();
+#ifdef _DEBUG
+    timer.start();
 #endif
     // Find the closest landmark for each transformed observation.
     // Note: this will update the 'id' member for each observation.
     dataAssociation(predicted, transformed_observations);
-#if __DEBUG
-    local_elapsed = clock() - local_start;
-    local_time += local_elapsed;
-    times["3-dataAssociation"] += local_elapsed;
+#ifdef _DEBUG
+    times["3-dataAssociation"] += timer.stop();
 
     if (write_data) {
       std::cout << "landmarks: " << predicted.size() << std::endl;
@@ -246,8 +237,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     // Update particle observation weight based on the closest landmarks.
     //
 
-#if __DEBUG
-    local_start = clock();
+#ifdef _DEBUG
+    timer.start();
 #endif
     // Reset particle weight.
     p->weight = 1.0;
@@ -258,7 +249,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     double  cy = 2.0 * std_landmark[1] * std_landmark[1];
 
     // For each transformed observation ...
-#if __DEBUG
+#ifdef _DEBUG
     if (write_data)
       std::cout << "particle: " << p - particles.begin() << std::endl;
 #endif
@@ -275,7 +266,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
       double  tx = (dx * dx) / cx;
       double  ty = (dy * dy) / cy;
-#if __DEBUG
+#ifdef _DEBUG
       if (write_data)
         std::cout << "temp: (" << tx << ", " << ty << ")" << std::endl;
 #endif
@@ -295,7 +286,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       double  ow = cxy * exp(-(tx + ty));
       if (ow != 0.0)
         p->weight *= ow;
-#if __DEBUG
+#ifdef _DEBUG
       if (write_data)
         std::cout << "obs weight: " << ow << std::endl;
       //if (ow == 0) {
@@ -305,10 +296,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       //}
 #endif
     }
-#if __DEBUG
-    local_elapsed = clock() - local_start;
-    local_time += local_elapsed;
-    times["4-weights"] += local_elapsed;
+#ifdef _DEBUG
+    times["4-weights"] += timer.stop();
 #endif
   }
 
@@ -324,9 +313,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   for (std::vector<Particle>::iterator p = particles.begin(); p != particles.end(); ++p)
     p->weight /= weight_sum;
 
-#if __DEBUG
-  time_t  elapsed = (clock() - start) - local_time;
-  times["updateWeights"] += elapsed;
+#ifdef _DEBUG
+  times["updateWeights"] += timer.stop();
 #endif
 }
 

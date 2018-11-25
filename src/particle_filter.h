@@ -11,8 +11,7 @@
 
 #include "helper_functions.h"
 #include "map.h"
-
-#define __DEBUG 0
+#include "timer.h"
 
 struct Particle {
   int id;
@@ -38,11 +37,11 @@ class ParticleFilter {
   
 public:
 
-#if __DEBUG
+#ifdef _DEBUG
   // Debugging / performance instrumentation:
   int time_step; // Current time step.
   bool write_data; // Write data to stdout?
-  std::map<std::string, time_t> times; // Elapsed times for various ops.
+  TimeMap times; // Elapsed times for various ops.
 #endif
 
   // Set of current particles
@@ -50,7 +49,7 @@ public:
 
   // Constructor
   // @param num_particles Number of particles
-#if __DEBUG
+#ifdef _DEBUG
   ParticleFilter() : num_particles(0), is_initialized(false), time_step(0), write_data(false) {}
 #else
   ParticleFilter() : num_particles(0), is_initialized(false) {}

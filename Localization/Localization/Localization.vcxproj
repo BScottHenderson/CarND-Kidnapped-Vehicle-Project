@@ -162,6 +162,7 @@
     <ClInclude Include="..\..\src\json.hpp" />
     <ClInclude Include="..\..\src\map.h" />
     <ClInclude Include="..\..\src\particle_filter.h" />
+    <ClInclude Include="..\..\src\timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

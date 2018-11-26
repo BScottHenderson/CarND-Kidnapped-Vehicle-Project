@@ -90,6 +90,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   for (std::vector<Particle>::iterator p = particles.begin(); p != particles.end(); ++p) {
     // Update the particle position and heading.
     if (fabs(yaw_rate) < 0.0001) {  // Avoid divide-by-zero.
+      // Linear Model
       // Not turning so just add distance traveled at the current heading.
       double  dist = velocity * delta_t;
       p->x += dist * cos(p->theta);
@@ -97,6 +98,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
       // yaw_rate is 0 so don't update p->theta
     }
     else {
+      // General Model
       p->x += c * (sin(p->theta + yaw) - sin(p->theta));
       p->y += c * (cos(p->theta) -  cos(p->theta + yaw));
       p->theta += yaw;
